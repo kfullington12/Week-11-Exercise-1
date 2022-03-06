@@ -1,0 +1,267 @@
+---
+title: "11.2 Exercise 1 Intro to Machine Learning"
+author: "Kaylar Fullington"
+date: 02/26/2022
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+binary_class_df <- read.csv(file = 'data/binary-classifier-data.csv')
+
+library(ggplot2)
+
+bin_plot <- ggplot(binary_class_df, aes(x = x, y = y, color = label)) + geom_point()
+bin_plot
+
+str(binary_class_df)
+binary_class_df$label <- as.factor(binary_class_df$label)
+
+
+library(cluster)
+bin_pam <- pam(x = binary_class_df, k = 38, keep.diss = TRUE, keep.data = TRUE)
+
+
+```
+# Running KNN (K Nearest Neighbor)
+
+```{r}
+ran <- sample(1:nrow(binary_class_df), 0.9 * nrow(binary_class_df))
+nor <- function(x) { x - min(x) / (max(x) - min(x)) }
+binary_norm <- as.data.frame(lapply(binary_class_df[, c(2,3)], nor))
+
+summary(binary_norm)
+
+binary_train <- binary_norm[ran,]
+binary_test <- binary_norm[-ran,]
+
+summary(binary_norm)
+
+```
+
+## KNN for k = 3
+```{r}
+binary_target_category <- binary_class_df[ran, 1]
+binary_test_category <- binary_class_df[-ran, 1]
+
+library(class)
+binary_knn_3 <- knn(binary_train, binary_test, cl = binary_target_category, k = 3)
+
+binary_table_3 <- table(binary_knn_3, binary_test_category)
+binary_table_3
+
+binary_accuracy_3 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_bin_3 <- binary_accuracy_3(binary_table_3)
+acc_bin_3
+```
+
+## KNN for k = 5
+```{r}
+binary_knn_5 <- knn(binary_train, binary_test, cl = binary_target_category, k = 5)
+
+binary_table_5 <- table(binary_knn_5, binary_test_category)
+binary_table_5
+
+binary_accuracy_5 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_bin_5 <-binary_accuracy_5(binary_table_5)
+acc_bin_5
+```
+
+## KNN for k = 10
+```{r}
+binary_knn_10 <- knn(binary_train, binary_test, cl = binary_target_category, k = 10)
+
+binary_table_10 <- table(binary_knn_10, binary_test_category)
+binary_table_10
+
+binary_accuracy_10 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_bin_10 <-binary_accuracy_10(binary_table_10)
+acc_bin_10
+```
+
+## KNN for k = 15
+```{r}
+binary_knn_15 <- knn(binary_train, binary_test, cl = binary_target_category, k = 15)
+
+binary_table_15 <- table(binary_knn_15, binary_test_category)
+binary_table_15
+
+binary_accuracy_15 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_bin_15 <- binary_accuracy_15(binary_table_15)
+acc_bin_15
+```
+## KNN for k = 20
+```{r}
+binary_knn_20 <- knn(binary_train, binary_test, cl = binary_target_category, k = 20)
+
+binary_table_20 <- table(binary_knn_20, binary_test_category)
+binary_table_20
+
+binary_accuracy_20 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_bin_20 <- binary_accuracy_20(binary_table_20)
+acc_bin_20
+```
+
+## KNN for k = 25
+```{r}
+binary_knn_25 <- knn(binary_train, binary_test, cl = binary_target_category, k = 25)
+
+binary_table_25 <- table(binary_knn_25, binary_test_category)
+binary_table_25
+
+binary_accuracy_25 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_bin_25 <- binary_accuracy_25(binary_table_25)
+acc_bin_25
+```
+
+# Plotting Accuracy by K-value for the Binary Data Set
+
+```{r}
+
+bin_acc_vector <- c(acc_bin_3, acc_bin_5, acc_bin_10, acc_bin_15, acc_bin_20, acc_bin_25)
+k_vector <- c(3, 5, 10, 15, 20, 25)
+
+bin_acc_df <- data.frame(bin_acc_vector, k_vector)
+str(bin_acc_df)
+bin_acc_df$k_vector <- as.factor(bin_acc_df$k_vector)
+str(bin_acc_df)
+
+bin_acc_plot <- ggplot(bin_acc_df, aes(x = k_vector, y = bin_acc_vector, group = 1)) + geom_point() + geom_line() + ylim(97.5, 99) + labs(title = "The Accuracy of Models by K Value - Binary Data Set", x = "K Values", y = "Accuracy in Percent")
+
+bin_acc_plot
+```
+
+# Running KNN (K Nearest Neighbor) on the Trinary Data Set
+```{r}
+trinary_class_df <- read.csv(file = 'data/trinary-classifier-data.csv')
+
+library(ggplot2)
+
+trin_plot <- ggplot(trinary_class_df, aes(x = x, y = y, color = label)) + geom_point()
+trin_plot
+
+str(trinary_class_df)
+trinary_class_df$label <- as.factor(trinary_class_df$label)
+
+
+library(cluster)
+trin_pam <- pam(x = trinary_class_df, k = 38, keep.diss = TRUE, keep.data = TRUE)
+```
+
+## Running KNN
+```{r}
+ran_trin <- sample(1:nrow(trinary_class_df), 0.9 * nrow(trinary_class_df))
+nor_trin <- function(x) { x - min(x) / (max(x) - min(x)) }
+trinary_norm <- as.data.frame(lapply(trinary_class_df[, c(2,3)], nor_trin))
+
+summary(trinary_norm)
+
+trinary_train <- trinary_norm[ran_trin,]
+trinary_test <- trinary_norm[-ran_trin,]
+
+summary(trinary_norm)
+
+trinary_target_category <- trinary_class_df[ran_trin, 1]
+trinary_test_category <- trinary_class_df[-ran_trin, 1]
+```
+
+## KNN for k = 3
+```{r}
+library(class)
+trinary_knn_3 <- knn(trinary_train, trinary_test, cl = trinary_target_category, k = 3)
+
+trinary_table_3 <- table(trinary_knn_3, trinary_test_category)
+trinary_table_3
+
+trinary_accuracy_3 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_trin_3 <- trinary_accuracy_3(trinary_table_3)
+acc_trin_3
+```
+
+## KNN for k = 5
+```{r}
+library(class)
+trinary_knn_5 <- knn(trinary_train, trinary_test, cl = trinary_target_category, k = 5)
+
+trinary_table_5 <- table(trinary_knn_5, trinary_test_category)
+trinary_table_5
+
+trinary_accuracy_5 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_trin_5 <- trinary_accuracy_5(trinary_table_5)
+acc_trin_5
+```
+
+## KNN for k = 10
+```{r}
+library(class)
+trinary_knn_10 <- knn(trinary_train, trinary_test, cl = trinary_target_category, k = 10)
+
+trinary_table_10 <- table(trinary_knn_10, trinary_test_category)
+trinary_table_10
+
+trinary_accuracy_10 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_trin_10 <- trinary_accuracy_10(trinary_table_10)
+acc_trin_10
+```
+
+## KNN for k = 15
+```{r}
+library(class)
+trinary_knn_15 <- knn(trinary_train, trinary_test, cl = trinary_target_category, k = 15)
+
+trinary_table_15 <- table(trinary_knn_15, trinary_test_category)
+trinary_table_15
+
+trinary_accuracy_15 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_trin_15 <- trinary_accuracy_15(trinary_table_15)
+acc_trin_15
+```
+
+## KNN for k = 20
+```{r}
+library(class)
+trinary_knn_20 <- knn(trinary_train, trinary_test, cl = trinary_target_category, k = 20)
+
+trinary_table_20 <- table(trinary_knn_20, trinary_test_category)
+trinary_table_20
+
+trinary_accuracy_20 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_trin_20 <- trinary_accuracy_20(trinary_table_20)
+acc_trin_20
+```
+
+## KNN for k = 25
+```{r}
+library(class)
+trinary_knn_25 <- knn(trinary_train, trinary_test, cl = trinary_target_category, k = 25)
+
+trinary_table_25 <- table(trinary_knn_25, trinary_test_category)
+trinary_table_25
+
+trinary_accuracy_25 <- function(x) { sum(diag(x) / (sum(rowSums(x)))) * 100 }
+acc_trin_25 <- trinary_accuracy_25(trinary_table_25)
+acc_trin_25
+```
+
+# Plotting Accuracy by K-value for the Trinary Data Set
+
+```{r}
+
+trin_acc_vector <- c(acc_trin_3, acc_trin_5, acc_trin_10, acc_trin_15, acc_trin_20, acc_trin_25)
+k_vector <- c(3, 5, 10, 15, 20, 25)
+
+trin_acc_df <- data.frame(trin_acc_vector, k_vector)
+str(trin_acc_df)
+trin_acc_df$k_vector <- as.factor(trin_acc_df$k_vector)
+str(trin_acc_df)
+
+trin_acc_plot <- ggplot(trin_acc_df, aes(x = k_vector, y = trin_acc_vector, group = 1)) + geom_point() + geom_line() + ylim(75, 100) + labs(title = "The Accuracy of Models by K Value", x = "K Values", y = "Accuracy in Percent")
+
+trin_acc_plot
+```
+
+
+
